@@ -8,6 +8,8 @@
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC # Lab: Orchestrating Jobs with Databricks
 # MAGIC 
 # MAGIC In this lab, you'll be configuring a multi-task job comprising of:
@@ -15,10 +17,11 @@
 # MAGIC * A Delta Live Table pipeline that processes this data through a series of tables
 # MAGIC * A notebook that queries the gold table produced by this pipeline as well as various metrics output by DLT
 # MAGIC 
-# MAGIC By the end of this lab, you should feel confident:
-# MAGIC * Scheduling a notebook as a Databricks Job
-# MAGIC * Scheduling a DLT pipeline as a Databricks Job
-# MAGIC * Configuring linear dependencies between tasks using the Databricks Jobs UI
+# MAGIC ## Learning Objectives
+# MAGIC By the end of this lab, you should be able to:
+# MAGIC * Schedule a notebook as a Databricks Job
+# MAGIC * Schedule a DLT pipeline as a Databricks Job
+# MAGIC * Configure linear dependencies between tasks using the Databricks Jobs UI
 
 # COMMAND ----------
 
@@ -27,6 +30,8 @@
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC ## Land Initial Data
 # MAGIC Seed the landing zone with some data before proceeding. You will re-run this command to land additional data later.
 
@@ -37,9 +42,11 @@ DA.data_factory.load()
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC ## Create and Configure a Pipeline
 # MAGIC 
-# MAGIC The pipline we create here is nearly identical to the one in the previous unit.
+# MAGIC The pipeline we create here is nearly identical to the one in the previous unit.
 # MAGIC 
 # MAGIC We will use it as part of a scheduled job in this lesson.
 # MAGIC 
@@ -52,11 +59,13 @@ print_pipeline_config()
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC Steps:
 # MAGIC 1. Click the **Jobs** button on the sidebar.
 # MAGIC 1. Select the **Delta Live Tables** tab.
 # MAGIC 1. Click **Create Pipeline**.
-# MAGIC 1. Fill in a **Pipeline Name** - because these names must be unique, we suggest using the **Pipline Name** provided in the cell above.
+# MAGIC 1. Fill in a **Pipeline Name** - because these names must be unique, we suggest using the **Pipeline Name** provided in the cell above.
 # MAGIC 1. For **Notebook Libraries**, use the navigator to locate and select the companion notebook called **DE 9.2.3L - DLT Job**.
 # MAGIC     * Alternatively, you can copy the **Notebook Path** specified above and paste it into the field provided.
 # MAGIC 1. Configure the Source
@@ -78,6 +87,8 @@ print_pipeline_config()
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC ## Schedule a Notebook Job
 # MAGIC 
 # MAGIC When using the Jobs UI to orchestrate a workload with multiple tasks, you'll always begin by scheduling a single task.
@@ -91,6 +102,8 @@ print_job_config()
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC Here, we'll start by scheduling the notebook batch job.
 # MAGIC 
 # MAGIC Steps:
@@ -109,6 +122,8 @@ print_job_config()
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC ## Schedule a DLT Pipeline as a Task
 # MAGIC 
 # MAGIC In this step, we'll add a DLT pipeline to execute after the success of the task we configured at the start of this lesson.
@@ -126,11 +141,13 @@ print_job_config()
 # MAGIC You should now see a screen with 2 boxes and a downward arrow between them. 
 # MAGIC 
 # MAGIC Your **`Batch-Job`** task (possibly renamed to something like **Jobs-Labs-92-youremailaddress**) will be at the top, 
-# MAGIC leading into your **`DLT-Pipeline`** task. 
+# MAGIC leading into your **`DLT-Pipeline`** task.
 
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC 
+# MAGIC 
 # MAGIC ## Schedule an Additional Notebook Task
 # MAGIC 
 # MAGIC An additional notebook has been provided which queries some of the DLT metrics and the gold table defined in the DLT pipeline. 

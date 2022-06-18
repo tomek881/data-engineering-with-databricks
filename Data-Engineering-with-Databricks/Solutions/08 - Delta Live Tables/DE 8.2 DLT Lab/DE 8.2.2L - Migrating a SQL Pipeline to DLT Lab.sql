@@ -8,6 +8,8 @@
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC # Lab: Migrating a SQL Pipeline to Delta Live Tables
 -- MAGIC 
 -- MAGIC This notebook will be completed by you to implement a DLT pipeline using SQL. 
@@ -19,6 +21,8 @@
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Declare Bronze Table
 -- MAGIC 
 -- MAGIC Declare a bronze table that ingests JSON data incrementally (using Auto Loader) from the simulated cloud source. The source location is already supplied as an argument; using this value is illustrated in the cell below.
@@ -30,13 +34,15 @@
 -- COMMAND ----------
 
 -- ANSWER
-CREATE INCREMENTAL LIVE TABLE recordings_bronze
+CREATE OR REFRESH STREAMING LIVE TABLE recordings_bronze
 AS SELECT current_timestamp() receipt_time, input_file_name() source_file, *
   FROM cloud_files("${source}", "json", map("cloudFiles.schemaHints", "time DOUBLE"))
 
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ### PII File
 -- MAGIC 
 -- MAGIC Using a similar CTAS syntax, create a live **table** into the CSV data found at */mnt/training/healthcare/patient*.
@@ -53,13 +59,15 @@ AS SELECT current_timestamp() receipt_time, input_file_name() source_file, *
 -- COMMAND ----------
 
 -- ANSWER
-CREATE INCREMENTAL LIVE TABLE pii
+CREATE OR REFRESH STREAMING LIVE TABLE pii
 AS SELECT *
   FROM cloud_files("/mnt/training/healthcare/patient", "csv", map("header", "true", "cloudFiles.inferColumnTypes", "true"))
 
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Declare Silver Tables
 -- MAGIC 
 -- MAGIC Our silver table, **`recordings_parsed`**, will consist of the following fields:
@@ -74,13 +82,13 @@ AS SELECT *
 -- MAGIC 
 -- MAGIC This query should also enrich the data through an inner join with the **`pii`** table on the common **`mrn`** field to obtain the name.
 -- MAGIC 
--- MAGIC Implement quality control by applying a constraint to drop records with an invalid **`heartrate`** (that is, not greater than zero). 
+-- MAGIC Implement quality control by applying a constraint to drop records with an invalid **`heartrate`** (that is, not greater than zero).
 
 -- COMMAND ----------
 
 -- ANSWER
 
-CREATE INCREMENTAL LIVE TABLE recordings_enriched
+CREATE OR REFRESH STREAMING LIVE TABLE recordings_enriched
   (CONSTRAINT positive_heartrate EXPECT (heartrate > 0) ON VIOLATION DROP ROW)
 AS SELECT 
   CAST(a.device_id AS INTEGER) device_id, 
@@ -95,6 +103,8 @@ AS SELECT
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Gold Table
 -- MAGIC 
 -- MAGIC Create a gold table, **`daily_patient_avg`**, that aggregates **`recordings_enriched`** by **`mrn`**, **`name`**, and **`date`** and delivers the following columns:
@@ -110,11 +120,11 @@ AS SELECT
 
 -- ANSWER
 
-CREATE INCREMENTAL LIVE TABLE daily_patient_avg
+CREATE OR REFRESH STREAMING LIVE TABLE daily_patient_avg
   COMMENT "Daily mean heartrates by patient"
-AS SELECT mrn, name, MEAN(heartrate) avg_heartrate, DATE(time) `date`
-  FROM STREAM(live.recordings_enriched)
-  GROUP BY mrn, name, DATE(time)
+  AS SELECT mrn, name, MEAN(heartrate) avg_heartrate, DATE(time) `date`
+    FROM STREAM(live.recordings_enriched)
+    GROUP BY mrn, name, DATE(time)
 
 -- COMMAND ----------
 

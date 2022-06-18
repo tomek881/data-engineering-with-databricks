@@ -8,6 +8,8 @@
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC # SQL for Delta Live Tables
 -- MAGIC 
 -- MAGIC In the last lesson, we walked through the process of scheduling this notebook as a Delta Live Table (DLT) pipeline. Now we'll explore the contents of this notebook to better understand the syntax used by Delta Live Tables.
@@ -17,16 +19,17 @@
 -- MAGIC At its simplest, you can think of DLT SQL as a slight modification to traditional CTAS statements. DLT tables and views will always be preceded by the **`LIVE`** keyword.
 -- MAGIC 
 -- MAGIC ## Learning Objectives
--- MAGIC 
--- MAGIC By the end of this lesson, students should feel confident:
--- MAGIC * Defining tables and views with Delta Live Tables
--- MAGIC * Using SQL to incrementally ingest raw data with Auto Loader
--- MAGIC * Performing incremental reads on Delta tables with SQL
--- MAGIC * Updating code and redeploying a pipeline
+-- MAGIC By the end of this lesson, you should be able to:
+-- MAGIC * Define tables and views with Delta Live Tables
+-- MAGIC * Use SQL to incrementally ingest raw data with Auto Loader
+-- MAGIC * Perform incremental reads on Delta tables with SQL
+-- MAGIC * Update code and redeploy a pipeline
 
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Declare Bronze Layer Tables
 -- MAGIC 
 -- MAGIC Below we declare two tables implementing the bronze layer. This represents data in its rawest form, but captured in a format that can be retained indefinitely and queried with the performance and benefits that Delta Lake has to offer.
@@ -34,11 +37,13 @@
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ### sales_orders_raw
 -- MAGIC 
 -- MAGIC **`sales_orders_raw`** ingests JSON data incrementally from the example dataset found in  */databricks-datasets/retail-org/sales_orders/*.
 -- MAGIC 
--- MAGIC Incremental processing via <a herf="https://docs.databricks.com/spark/latest/structured-streaming/auto-loader.html" target="_blank">Auto Loader</a> (which uses the same processing model as Structured Streaming), requires the addition of the **`INCREMENTAL`** keyword in the declaration as seen below. The **`cloud_files()`** method enables Auto Loader to be used natively with SQL. This method takes the following positional parameters:
+-- MAGIC Incremental processing via <a herf="https://docs.databricks.com/spark/latest/structured-streaming/auto-loader.html" target="_blank">Auto Loader</a> (which uses the same processing model as Structured Streaming), requires the addition of the **`STREAMING`** keyword in the declaration as seen below. The **`cloud_files()`** method enables Auto Loader to be used natively with SQL. This method takes the following positional parameters:
 -- MAGIC * The source location, as mentioned above
 -- MAGIC * The source data format, which is JSON in this case
 -- MAGIC * An arbitrarily sized array of optional reader options. In this case, we set **`cloudFiles.inferColumnTypes`** to **`true`**
@@ -47,26 +52,30 @@
 
 -- COMMAND ----------
 
-CREATE INCREMENTAL LIVE TABLE sales_orders_raw
+CREATE OR REFRESH STREAMING LIVE TABLE sales_orders_raw
 COMMENT "The raw sales orders, ingested from /databricks-datasets."
 AS SELECT * FROM cloud_files("/databricks-datasets/retail-org/sales_orders/", "json", map("cloudFiles.inferColumnTypes", "true"))
 
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ### customers
 -- MAGIC 
 -- MAGIC **`customers`** presents CSV customer data found in */databricks-datasets/retail-org/customers/*. This table will soon be used in a join operation to look up customer data based on sales records.
 
 -- COMMAND ----------
 
-CREATE INCREMENTAL LIVE TABLE customers
+CREATE OR REFRESH STREAMING LIVE TABLE customers
 COMMENT "The customers buying finished products, ingested from /databricks-datasets."
 AS SELECT * FROM cloud_files("/databricks-datasets/retail-org/customers/", "csv");
 
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC 
 -- MAGIC ## Declare Silver Layer Tables
 -- MAGIC 
@@ -75,6 +84,8 @@ AS SELECT * FROM cloud_files("/databricks-datasets/retail-org/customers/", "csv"
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ### sales_orders_cleaned
 -- MAGIC 
 -- MAGIC Here we declare our first silver table, which enriches the sales transaction data with customer information in addition to implementing quality control by rejecting records with a null order number.
@@ -100,7 +111,7 @@ AS SELECT * FROM cloud_files("/databricks-datasets/retail-org/customers/", "csv"
 
 -- COMMAND ----------
 
-CREATE INCREMENTAL LIVE TABLE sales_orders_cleaned(
+CREATE OR REFRESH STREAMING LIVE TABLE sales_orders_cleaned(
   CONSTRAINT valid_order_number EXPECT (order_number IS NOT NULL) ON VIOLATION DROP ROW
 )
 COMMENT "The cleaned sales orders with valid order_number(s) and partitioned by order_datetime."
@@ -117,13 +128,15 @@ AS
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Declare Gold Table
 -- MAGIC 
 -- MAGIC At the most refined level of the architecture, we declare a table delivering an aggregation with business value, in this case a collection of sales order data based in a specific region. In aggregating, the report generates counts and totals of orders by date and customer.
 
 -- COMMAND ----------
 
-CREATE LIVE TABLE sales_order_in_la
+CREATE OR REFRESH LIVE TABLE sales_order_in_la
 COMMENT "Sales orders in LA."
 AS
   SELECT city, order_date, customer_id, customer_name, ordered_products_explode.curr, 
@@ -138,6 +151,8 @@ AS
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Explore Results
 -- MAGIC 
 -- MAGIC Explore the DAG (Directed Acyclic Graph) representing the entities involved in the pipeline and the relationships between them. Click on each to view a summary, which includes:
@@ -151,6 +166,8 @@ AS
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Update Pipeline
 -- MAGIC 
 -- MAGIC Uncomment the following cell to declare another gold table. Similar to the previous gold table declaration, this filters for the **`city`** of Chicago. 
@@ -164,7 +181,7 @@ AS
 -- COMMAND ----------
 
 -- TODO
--- CREATE LIVE TABLE sales_order_in_chicago
+-- CREATE OR REFRESH LIVE TABLE sales_order_in_chicago
 -- COMMENT "Sales orders in Chicago."
 -- AS
 --   SELECT city, order_date, customer_id, customer_name, ordered_products_explode.curr, 

@@ -8,11 +8,13 @@
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC # Views and CTEs on Databricks
 -- MAGIC In this demonstration, you will create and explore views and common table expressions (CTEs).
 -- MAGIC 
 -- MAGIC ## Learning Objectives
--- MAGIC By the end of this lesson, you will be able to:
+-- MAGIC By the end of this lesson, you should be able to:
 -- MAGIC * Use Spark SQL DDL to define views
 -- MAGIC * Run queries that use common table expressions
 -- MAGIC 
@@ -25,6 +27,8 @@
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ## Classroom Setup
 -- MAGIC The following script clears out previous runs of this demo and configures some Hive variables that will be used in our SQL queries.
 
@@ -34,7 +38,9 @@
 
 -- COMMAND ----------
 
--- MAGIC %md 
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC  
 -- MAGIC We start by creating a table of data we can use for the demonstration.
 
 -- COMMAND ----------
@@ -42,9 +48,9 @@
 -- mode "FAILFAST" will abort file parsing with a RuntimeException if any malformed lines are encountered
 CREATE TABLE external_table
 USING CSV OPTIONS (
-  path '${da.paths.working_dir}/flight_delays',
-  header "true",
-  mode "FAILFAST"
+  path = '${da.paths.working_dir}/flight_delays',
+  header = "true",
+  mode = "FAILFAST"
 );
 
 SELECT * FROM external_table;
@@ -52,6 +58,9 @@ SELECT * FROM external_table;
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
+-- MAGIC 
 -- MAGIC To show a list of tables (and views), we use the **`SHOW TABLES`** command also demonstrated below.
 
 -- COMMAND ----------
@@ -60,7 +69,11 @@ SHOW TABLES;
 
 -- COMMAND ----------
 
--- MAGIC %md ## Views, Temp Views & Global Temp Views
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 
+-- MAGIC 
+-- MAGIC ## Views, Temp Views & Global Temp Views
 -- MAGIC 
 -- MAGIC To set this demonstration up, we are going to first create one of each type of view.
 -- MAGIC 
@@ -69,6 +82,8 @@ SHOW TABLES;
 -- COMMAND ----------
 
 -- MAGIC %md
+-- MAGIC 
+-- MAGIC 
 -- MAGIC ### Views
 -- MAGIC Let's create a view that contains only the data where the origin is "ABQ" and the destination is "LAX".
 
@@ -83,7 +98,9 @@ SELECT * FROM view_delays_abq_lax;
 
 -- COMMAND ----------
 
--- MAGIC %md 
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC  
 -- MAGIC  
 -- MAGIC Note that the **`view_delays_abq_lax`** view has been added to the list below:
 
@@ -93,12 +110,14 @@ SHOW TABLES;
 
 -- COMMAND ----------
 
--- MAGIC %md 
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC  
 -- MAGIC ### Temporary Views
 -- MAGIC 
 -- MAGIC Next we'll create a temporary view. 
 -- MAGIC 
--- MAGIC The syntax is very similar but adds **`TEMPORARY`** to the command. 
+-- MAGIC The syntax is very similar but adds **`TEMPORARY`** to the command.
 
 -- COMMAND ----------
 
@@ -109,7 +128,11 @@ SELECT * FROM temp_view_delays_gt_120;
 
 -- COMMAND ----------
 
--- MAGIC %md Now if we show our tables again, we will see the one table and both views.
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 
+-- MAGIC 
+-- MAGIC Now if we show our tables again, we will see the one table and both views.
 -- MAGIC 
 -- MAGIC Make note of the values in the **`isTemporary`** column.
 
@@ -119,7 +142,11 @@ SHOW TABLES;
 
 -- COMMAND ----------
 
--- MAGIC %md ### Global Temp Views
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 
+-- MAGIC 
+-- MAGIC ### Global Temp Views
 -- MAGIC 
 -- MAGIC Lastly, we'll create a global temp view. 
 -- MAGIC 
@@ -136,7 +163,11 @@ SELECT * FROM global_temp.global_temp_view_dist_gt_1000;
 
 -- COMMAND ----------
 
--- MAGIC %md Before we move on, review one last time the database's tables and views...
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 
+-- MAGIC 
+-- MAGIC Before we move on, review one last time the database's tables and views...
 
 -- COMMAND ----------
 
@@ -144,7 +175,11 @@ SHOW TABLES;
 
 -- COMMAND ----------
 
--- MAGIC %md ...and the tables and views in the **`global_temp`** database:
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 
+-- MAGIC 
+-- MAGIC ...and the tables and views in the **`global_temp`** database:
 
 -- COMMAND ----------
 
@@ -152,7 +187,11 @@ SHOW TABLES IN global_temp;
 
 -- COMMAND ----------
 
--- MAGIC %md Next we are going to demonstrate how tables and views are persisted across multiple sessions and how temp views are not.
+-- MAGIC %md
+-- MAGIC 
+-- MAGIC 
+-- MAGIC 
+-- MAGIC Next we are going to demonstrate how tables and views are persisted across multiple sessions and how temp views are not.
 -- MAGIC 
 -- MAGIC To do this simply open the next notebook, [DE 3.2B - Views and CTEs on Databricks, Cont]($./DE 3.2B - Views and CTEs on Databricks, Cont), and continue with the lesson.
 -- MAGIC 
